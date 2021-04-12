@@ -79,7 +79,7 @@ type(a)
 流程控制就是if else，循环那些，如果你学过别的语言就很明白，这里要注意个是：
 python的程序block是通过缩进来定义的，连续同一个缩进级别的就是一个block，所以有有本书叫《Python从入门到买游标卡尺》。
 
-![](2021-03-29-13-18-46)
+![](2021-03-29-13-18-46.png)
 
 下面看几个例子大家就明白了。
 """
@@ -574,5 +574,27 @@ print(sum(b))
  $\int_0^1\int_0^1\int_0^1(x^y-z)dxdydz$
 """
 
+
+# %%
+def freeFall(t, dt):
+    time = np.arange(0, t, dt)
+    return 0.5*9.8*time**2
+
+
+result = freeFall(10, 1)
+
+# %%
+
+
+def f(x, y, z):
+    return x**y-z
+
+
+xn = np.linspace(0, 1, 100)
+grid = np.meshgrid(xn, xn, xn)
+
+allPoints = f(*grid)
+
+sum1 = np.average(allPoints)
 
 # %%

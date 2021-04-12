@@ -184,22 +184,17 @@ df.info()
 # 看看那种抱怨最多
 
 complaints = pd.read_csv('./data/311-service-requests.csv')
-complaint_counts = complaints['Complaint Type'].value_counts()
-complaint_counts[:10]
+
 
 # %%
 # Quiz
 # 看看哪个区（borouhg）抱怨马路上噪声（Noise - Street/Sidewalk）的最多
 
-complaints[complaints['Complaint Type'] ==
-           "Noise - Street/Sidewalk"]["Borough"].value_counts()
 
 # %%
 # Quiz
 # 选出所有Brooklyn区和噪音有关的抱怨，提示，可以使用`.str.contains("Noise")`
-is_noise = complaints['Complaint Type'].str.contains("Noise")
-in_brooklyn = complaints['Borough'] == "BROOKLYN"
-complaints[is_noise & in_brooklyn]
+
 
 # %%
 
@@ -207,15 +202,3 @@ complaints[is_noise & in_brooklyn]
 
 cases = pd.read_csv("covid-19-cases.csv")
 # %%
-cases["sum"] = np.sum(cases.iloc[:, 5:-1], 1)
-casesByCounty = cases.drop(columns=cases.columns[[0, 1, 3, 4]])
-countryRegions = casesByCounty["Country/Region"].unique()
-
-casesByCounty = casesByCounty.groupby('Country/Region').sum()
-
-topCases = casesByCounty.sort_values("sum")[-5:]
-
-for i in range(topCases.index.shape[0]):
-    plt.plot(topCases[i:i+1].to_numpy().T[:-1], label=topCases.index[i])
-
-plt.legend()

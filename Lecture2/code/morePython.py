@@ -1,4 +1,4 @@
-# %% [Markdown]
+# %% [markdown]
 '''
 # 更多Python的一些操作
 ## 你将会学到:
@@ -6,7 +6,7 @@
 2. 简单的读取，写入数据文件
 '''
 
-# %%
+# %% [markdown]
 '''
 ## 基本的画图
 
@@ -56,7 +56,7 @@ plt.plot(x, y2)
 
 # %%
 # element of a plot
-plt.plot(x, y, alpha=1, label='Sine wave',
+plt.plot(x, y, alpha=0.5, label='Sine wave',
          color='red', linestyle='dashed', linewidth=2,
          marker='o', markersize=5, markerfacecolor='blue',
          markeredgecolor='green')
@@ -130,7 +130,7 @@ y3 = 13*np.cos(t) - 5*np.cos(2*t) - 2*np.cos(3*t) - np.cos(4*t)
 
 # Plot line with RGB tuple (red=1, green=0.2, blue=0.5)
 # and 20pt line width
-plt.plot(x1, y1, c=(1, 0.2, 0.5), lw=20)
+plt.plot(x3, y3, c=(1, 0.2, 0.5), lw=20)
 
 # Add features to our figure
 plt.title('Heart!')

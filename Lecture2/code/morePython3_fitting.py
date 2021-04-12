@@ -1,13 +1,11 @@
 
 # %% [markdown]
 '''
-# # 电气工程建模与仿真——Fitting
-# 
-# 通过采样、实验等方式获得若干离散数据后，我们希望得到一个与当前数据分布最接近的函数（或曲线），这个过程即为拟合。
-# 
-# 主要利用`scipy.optimize`中的`curve_fit`接口进行拟合：
-# 
-# 调包：
+# 电气工程建模与仿真——Fitting
+
+通过采样、实验等方式获得若干离散数据后，我们希望得到一个与当前数据分布最接近的函数（或曲线），这个过程即为拟合。
+主要利用`scipy.optimize`中的`curve_fit`接口进行拟合：
+调包：
 '''
 
 # %%
@@ -17,17 +15,18 @@ import numpy as np
 from pandas import read_csv
 from matplotlib import pyplot as plt
 import pandas
+print('----')
 
 # %%
 # 从别人的项目里拿一些假数据，仍然可以用之前np.linspace()等方法自己生成...whatever
-url = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/longley.csv'
+url = 'http://raw.githubusercontent.com/jbrownlee/Datasets/master/longley.csv'
 # 这里可以看到，我们可以用pandas直接从网上把数据下载下来
-# dataframe = read_csv(url, header=None)
+#dataframe = read_csv(url, header=None)
 # 所以你可以把它存下来下次直接读取
-# dataframe.to_csv('longley.csv')
-read_csv('longley.csv')
+#dataframe.to_csv('longley.csv')
+dataframe = read_csv('longley.csv')
 data = dataframe.values
-x, y = data[:, 4], data[:, -1]
+x, y = data[:, 5], data[:, -1]
 plt.scatter(x, y)
 
 # %% [markdown]
@@ -41,7 +40,7 @@ plt.scatter(x, y)
 # 非常简单，给出下xy以后后面一个参数就是阶数。
 p = []
 for i in range(1, 4):
-    p.append(np.polyfit(x, y, i+1))
+    p.append(np.polyfit(x, y, i))
 
 
 # 你可以看看这个系数,三阶得得有4个系数
@@ -74,7 +73,9 @@ plt.plot(x_line, y_line, '--', color='r')
 
 
 # %% [markdown]
-# N次多项式同理，这里以三次为例：
+'''
+## N次多项式同理，这里以三次为例：
+'''
 
 # %%
 
@@ -114,4 +115,9 @@ y_line = objective(x_line, a, b, c)
 plt.plot(x_line, y_line, '--', color='r')
 
 # %% [markdown]
-# 总结一下，`curve_fit`方法需要你自己自定义一个函数，并给出待求解的参数。`curve_fit`方法将根据非线性最小二乘给出基于你函数形式的最佳逼近的参数解，并作为元组存储在其第一个返回值中。该方法比较灵活简单，同时需要你对拟合的函数形式有一定的了解。不知道用什么函数形式的时候就试试三次多项式吧！
+'''
+** 总结一下，`curve_fit`方法需要你自己自定义一个函数，并给出待求解的参数。
+`curve_fit`方法将根据非线性最小二乘给出基于你函数形式的最佳逼近的参数解，并作为元组存储在其第一个返回值中。
+该方法比较灵活简单，同时需要你对拟合的函数形式有一定的了解。
+不知道用什么函数形式的时候就试试三次多项式吧！**
+'''
