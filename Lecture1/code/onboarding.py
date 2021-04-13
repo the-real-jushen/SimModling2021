@@ -576,25 +576,3 @@ print(sum(b))
 
 
 # %%
-def freeFall(t, dt):
-    time = np.arange(0, t, dt)
-    return 0.5*9.8*time**2
-
-
-result = freeFall(10, 1)
-
-# %%
-
-
-def f(x, y, z):
-    return x**y-z
-
-
-xn = np.linspace(0, 1, 100)
-grid = np.meshgrid(xn, xn, xn)
-
-allPoints = f(*grid)
-
-sum1 = np.average(allPoints)
-
-# %%

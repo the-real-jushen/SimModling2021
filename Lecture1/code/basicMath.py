@@ -304,7 +304,7 @@ def f(x):
 
 
 # 这里给出一个4.5的初值，大家可以可以换个初值试试。
-x = optimize.fsolve(f, 4.5)
+x = optimize.fsolve(f, 1)
 print(x)
 # 可以看到基本上f（x）一斤非常接近0了，他就认为已经解出这个方程了
 print(f(x))
@@ -342,26 +342,3 @@ x
 $$x^2+y^2=5$$
 $$y=3x−5$$
 '''
-
-# %%
-# quick quiz solution
-
-
-# %% [markdown]
-
-'''
-## 练习 2
-1. 在一个 3 维空间内，物质的密度分布为$\rho=x^2y^2z^2$,求一个圆锥体，底面为 xy 平面，圆心在原点，
-半径为 1，高为 1 的圆锥体的质量
-'''
-
-# %%
-
-
-def f(x, y, z): return x**2*y**2*z**2
-
-
-I = integrate.tplquad(f, -1, 1, lambda x: -1*(1-x**2)**0.5, lambda x: (1-x**2)
-                      ** 0.5, lambda x, y: 0, lambda x, y: (1-(x**2+y**2)**0.5)/np.cos(0.25*np.pi))
-
-# %%

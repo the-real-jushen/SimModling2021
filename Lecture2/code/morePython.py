@@ -29,7 +29,7 @@ print('---------')
 x = np.linspace(0, 2*math.pi, 10)
 y = np.sin(x)
 plt.plot(x, y)
-
+plt.show()
 # %%
 # 如果你连续调用过次，一个图中就会被画上多个曲线，自动变成不同的颜色
 
@@ -60,7 +60,8 @@ plt.plot(x, y, alpha=0.5, label='Sine wave',
          color='red', linestyle='dashed', linewidth=2,
          marker='o', markersize=5, markerfacecolor='blue',
          markeredgecolor='green')
-plt.ylim([-1.5, 1])
+plt.ylim([0.75, 1])
+plt.xlim([1, 2])
 plt.title('Some plot')
 plt.xlabel('I(A)')
 plt.ylabel('U(V)')
@@ -265,8 +266,9 @@ colors = theta
 # 可读性更强，推荐使用这种方法
 ax = plt.subplot(111, projection='polar')
 ax.scatter(theta, r, c=colors, s=area, cmap='hsv', alpha=0.75)
-ax.set_thetamin(45)
-ax.set_thetamax(135)
+# ax.set_thetamin(45)
+# ax.set_thetamax(135)
+
 
 # %% [markdown]
 """
@@ -274,3 +276,24 @@ ax.set_thetamax(135)
 一个小球，在地球上水平抛出，初始高度为h，速度为v，落地后弹起时，
 垂直速度为原来的0.7水平速度不变，请画出他在第二次落地前的轨迹
 """
+
+# %%
+
+
+def ball(h, v):
+    g = 9.8
+    fallTime = (2*h/g)**0.5
+    x1 = np.linspace(0, v*fallTime, 10)
+    yTime = x1/v
+    y1 = h-0.5*g*yTime**2
+    fallTime2 = fallTime*0.7*2
+    v2 = fallTime*0.7*g
+    x2 = np.linspace(0, v*fallTime2, 20)
+    yTime2 = x2/v
+    x2 += v*fallTime
+    y2 = yTime2*v2-0.5*g*yTime2**2
+    plt.plot(x1, y1)
+    plt.plot(x2, y2)
+
+
+ball(10, 10)
