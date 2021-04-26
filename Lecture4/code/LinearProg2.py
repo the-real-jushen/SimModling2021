@@ -174,11 +174,4 @@
 # \end{matrix}
 # \right]
 # $$
-# %% [markdown]
-'''
-## 非线性规化
 
-对于上面的问题我们也可以坐非线性规划求解，
-@甘睿，这里用SciPy的optimize.minimize操作一下
-
-'''
