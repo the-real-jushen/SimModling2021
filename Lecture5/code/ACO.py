@@ -113,8 +113,8 @@ def evaluate(route, distMat):
 
 
 # %%
-num_city = 10
-points_coordinate, distance_matrix = generateMap(num_city)
+num_city = 11
+city_coordinates, distance_matrix = generateMap(num_city)
 # 从第一个点开始遍历路线，因为试loop
 route = [i for i in range(1, num_city)]
 bestRoute = []
@@ -135,14 +135,17 @@ while not np.all(route2 == route):
     route = nextRoute(route)
 
 endTime = time.time()
-print(endTime - startTime)
+print("time: "+str(endTime - startTime))
 # 插入起点和重点好画图
 bestRoute = np.insert(bestRoute, 0, 0)
 bestRoute = np.append(bestRoute, 0)
 fig, ax = plt.subplots(1, 2)
-ax[0].plot(points_coordinate[bestRoute, 0],
-           points_coordinate[bestRoute, 1], 'o-r')
+ax[0].plot(city_coordinates[bestRoute, 0],
+           city_coordinates[bestRoute, 1], 'o-r')
 ax[1].plot(dists)
+
+print('访问顺序：', '->'.join([str(p) for p in bestRoute]))
+print('最短距离：', bestDist)
 
 # %% [markdown]
 # # 蚁群算法(Ant Colony Optimization, ACO)
@@ -196,6 +199,8 @@ ax[1].plot(dists)
 # 其中，$\eta_{ij}(t)$为启发函数，表示蚂蚁从城市i转移到城市j的期望；$allow_k(k=1, 2, \cdots, m)$表示蚂蚁k待访问城市的集合。$\alpha$为信息素因子，
 # 其值越大表明信息素强度影响越大；$\beta$为启发函数因子，其值越大表明启发函数影响越大。
 #
+# ![](pics\pic32.png)
+
 # 在蚂蚁释放信息素的同时，各城市间连接路径上的信息素强度也会逐渐消失。为描述这一特征，令$\rho(0<\rho<1)$表示信息素的会发程度。
 # 这样，当蚂蚁完整走完一遍所有城市之后，各城市间路径上的信息浓度为：
 # $$
@@ -249,9 +254,13 @@ ax[1].plot(dists)
 # ### 信息素挥发因子
 # 信息素挥发因子$\rho$直接关系到算法的全局搜索能力和收敛速度，$1-\beta$反映蚂蚁间相互影响的强弱。过大会导致重复搜索的可能性
 # 大，过小则使收敛速度降低。研究发现$0.2 \le \rho \le 0.5$时综合求解性能比较好。
-#
+
+
 # ### 信息素常数
 # 信息素常数Q越大则信息素收敛速度越快。Q过大容易陷入全局最优，过小则影响收敛速度，一般在\[10, 1000\]综合性能较好
+
+# ![](pics\pic32.png)
+#
 # %% [markdown]
 # # 小结
 # ## 优点
@@ -274,10 +283,8 @@ ax[1].plot(dists)
 
 # 城市个数
 
-num_city = 4
-points_coordinate, distance_matrix = generateMap(num_points)
 # 从第一个点开始遍历路线，因为试loop
-route = [i for i in range(1, num_points)]
+route = [i for i in range(1, num_city)]
 bestRoute = []
 dists = []
 # 起始的路线
@@ -301,7 +308,7 @@ max_iter = 150
 # 启发函数，蚂蚁从城市i转移到j的期望程度
 eta_table = 1.0 / (distance_matrix + np.diag([1e10] * num_city))
 # 信息素矩阵
-pheromone_table = np.ones((num_city, num_city))
+tau_table = np.ones((num_city, num_city))
 # 路径记录表
 path_table = np.zeros((num_ant, num_city)).astype(int)
 
@@ -312,6 +319,7 @@ length_best = np.zeros(max_iter)
 # 每次iteration最短路径
 path_best = np.zeros((max_iter, num_city))
 
+startTime = time.time()
 # 每次迭代都让蚂蚁完整遍历一次全部城市
 while iter < max_iter:
     # 蚂蚁数量比城市多，部分城市放置多个蚂蚁
@@ -338,7 +346,7 @@ while iter < max_iter:
 
             for k in range(len(unvisited_list)):
                 # 转移到下一个没有访问过的城市的概率=(到哪个城市的信息素**alpha)*（到那个城市的eta（距离的倒数）**beta）
-                prob_trans[k] = np.power(pheromone_table[visiting][unvisited_list[k]], alpha) \
+                prob_trans[k] = np.power(tau_table[visiting][unvisited_list[k]], alpha) \
                     * np.power(eta_table[visiting][unvisited_list[k]], beta)
 
             # 累积概率，求和=1
@@ -361,38 +369,41 @@ while iter < max_iter:
         # 加上最后一个点到初始点的距离
         length[antNo] += distance_matrix[visiting][path_table[antNo, 0]]
 
-    length_avg[iter] = length.mean()
-
-    # 求最佳路径
+    # 找到本次迭代最好的路径
     if iter == 0:
+        # 第一次迭代最好成绩就记录本次迭代最好成绩
         length_best[iter] = length.min()
         path_best[iter] = path_table[length.argmin()].copy()
     else:
+        # 本次迭代的最短路径长度大于上一次，也是总体最短路径长度
         if length.min() > length_best[iter - 1]:
-            # 本次迭代的最短路径长度大于总体最短路径长度
+            # 那就把上一次的保留位这一次最好成绩
             length_best[iter] = length_best[iter - 1]
             path_best[iter] = path_best[iter - 1].copy()
         else:
+            # 这一次比上一次号，则记录下这一词最短路径和最短的路径的长度
             length_best[iter] = length.min()
             path_best[iter] = path_table[length.argmin()].copy()
 
-    # 更新信息素
+    # 更新信息素，这个矩阵信息素的增量矩阵,tau
     change_pheromone_table = np.zeros((num_city, num_city))
-    for i in range(num_ant):
+    for antNo in range(num_ant):
         for j in range(num_city - 1):
-            # 根据公式更新第i只蚂蚁改变的城市间的信息素，Q / d, d是从第j个城市到第j + 1个城市的距离
-            change_pheromone_table[path_table[i, j]][path_table[i, j + 1]
-                                                     ] += Q / distance_matrix[path_table[i, j]][path_table[i, j + 1]]
-
-        change_pheromone_table[path_table[i, j + 1]][path_table[i, 0]
-                                                     ] += Q / distance_matrix[path_table[i, j + 1]][path_table[i, 0]]
-
-    pheromone_table = (1 - rho) * pheromone_table + change_pheromone_table
+            # 根据公式更新第i只蚂蚁改变的城市间的信息素，Q / L, L这个蚂蚁走完整个路线的长度
+            # 如果这个路线越短，说民这个贸易找的路更好，就刘家更多的信息种族
+            change_pheromone_table[path_table[antNo, j]][path_table[antNo, j + 1]
+                                                         ] += Q / length[antNo]
+    # 之前的信息素蒸发一部分，再加上现在新的
+    tau_table = (1 - rho) * tau_table + change_pheromone_table
 
     iter += 1
 
+
+endTime = time.time()
+print("time: "+str(endTime - startTime))
+
 best_route = [int(p) for p in path_best[-1]] + [int(path_best[-1][0])]
-best_coordinate = cities_coordinate[best_route, :]
+best_coordinate = city_coordinates[best_route, :]
 
 print('访问顺序：', '->'.join([str(p) for p in best_route]))
 print('最短距离：', length_best[-1])
@@ -402,5 +413,7 @@ ax[1].plot(length_best)
 ax[1].set_xlabel('Iteration count')
 ax[1].set_ylabel('Shortest distance')
 plt.show()
+
+# %%
 
 # %%
