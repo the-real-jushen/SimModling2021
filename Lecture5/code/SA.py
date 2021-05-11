@@ -73,8 +73,8 @@
 # + 降温过程过快可能得不到全局最优解
 #
 # %% [markdown]
-# # 课堂练习
-# ## 解数独
+
+# # 解数独
 # 一个数独的解法需遵循如下规则：
 #
 # + 数字 1-9 在每一行只能出现一次。
@@ -82,73 +82,7 @@
 # + 数字 1-9 在每一个以粗实线分隔的 3x3 宫格内只能出现一次。
 #
 # <div align=center><img src='../../pics/pic31.png' /></div>
-#
-# %% [markdown]
-# ## 递归（解法摘自Leetcode 37.解数独）
-# 我们可以考虑按照「行优先」的顺序依次枚举每一个空白格中填的数字，通过递归 + 回溯的方法枚举所有可能的填法。当递归到最后一个空白格后，如果仍然没有冲突，说明我们找到了答案；在递归的过程中，如果当前的空白格不能填下任何一个数字，那么就进行回溯。
-#
-# 由于每个数字在同一行、同一列、同一个九宫格中只会出现一次，因此我们可以使用$line[i], column[i], block[x][y]$分别表示第$i$行，第$j$列，第$(x, y)$个九宫格中填写数字的情况。
-#
-# 最容易想到的方法是用一个数组记录每个数字是否出现。由于我们可以填写的数字范围为$[1, 9]$,
-# 而数组的下标从0开始，因此在存储时，我们使用一个长度为9的布尔类型的数组，其中$i$个元素的值为True，\
-# 当且仅当数字$i+1$出现过。例如我们用$line[2][3]=True$表示数字4在第2行已经出现过，那么当我们在遍历到第2行的空白格时，就不能填入数字4。
-#
-# ### 算法
-#
-# 我们首先对整个数独数组进行遍历，当我们遍历到第i行第j列的位置：
-#
-# + 如果该位置是一个空白格，那么我们将其加入一个用来存储空白格位置的列表中，方便后续的递归操作；
-# + 如果该位置是一个数字 xx，那么我们需要将$line[i][x-1], column[j][x-1], block[\lfloor i/3 \rfloor ][\lfloor j/3 \rfloor][x-1]$均置为True。
-#
-#
-# 当我们结束了遍历过程之后，就可以开始递归枚举。当递归到第i行第j列的位置时，我们枚举填入的数字x。根据题目的要求，数字x不能和当前行、列、九宫格中已经填入的数字相同，\
-# 因此$line[i][x-1], column[j][x-1], block[\lfloor i/3 \rfloor ][\lfloor j/3 \rfloor][x-1]$必须均为False。
-#
-# 当我们填入了数字x之后，我们要将上述的三个值都置为True，并且继续对下一个空白格位置进行递归。在回溯到当前递归层时，我们还要将上述的三个值重新置为False。
-#
-# %%
-from simanneal import Annealer
-import numpy as np
-import random
-import copy
 
-
-class Solution:
-    def solveSudoku(self, board):
-        def dfs(pos: int):
-            nonlocal valid
-            if pos == len(spaces):
-                valid = True
-                return
-
-            i, j = spaces[pos]
-            for digit in range(9):
-                if line[i][digit] == column[j][digit] == block[i // 3][j // 3][digit] == False:
-                    line[i][digit] = column[j][digit] = block[i //
-                                                              3][j // 3][digit] = True
-                    board[i][j] = str(digit + 1)
-                    dfs(pos + 1)
-                    line[i][digit] = column[j][digit] = block[i //
-                                                              3][j // 3][digit] = False
-                if valid:
-                    return
-
-        line = [[False] * 9 for _ in range(9)]
-        column = [[False] * 9 for _ in range(9)]
-        block = [[[False] * 9 for _a in range(3)] for _b in range(3)]
-        valid = False
-        spaces = list()
-
-        for i in range(9):
-            for j in range(9):
-                if board[i][j] == ".":
-                    spaces.append((i, j))
-                else:
-                    digit = int(board[i][j]) - 1
-                    line[i][digit] = column[j][digit] = block[i //
-                                                              3][j // 3][digit] = True
-
-        dfs(0)
 
 # %% [markdown]
 # ## 模拟退火算法解数独
@@ -159,7 +93,11 @@ class Solution:
 # 为什么在$3\times 3$矩阵中交换元素而不是直接在$9\times 9$矩阵中交换？因为后者不能保证每个小矩阵中各元素独立，可能导致算法不能收敛。
 # %%
 
+import numpy as np
+import random
 
+
+# 初始化一个数度问题
 _ = 0
 PROBLEM = np.array([
     1, _, _,  _, _, 6,  3, _, 8,
@@ -175,7 +113,7 @@ PROBLEM = np.array([
     5, _, 7,  6, _, _,  _, _, 3,
 ])
 
-
+# 打印数独当前状态
 def print_sudoku(state):
     border = "------+-------+------"
     rows = [state[i:i+9] for i in range(0, 81, 9)]
@@ -189,11 +127,11 @@ def print_sudoku(state):
         ))
     print(border)
 
-
+# 返回某个坐标的index
 def coord(row, col):
     return row * 9 + col
 
-
+# 分会某一个方块的里面元素的indices
 def block_indices(block_num):
     """return linear array indices corresp to the sq block, row major, 0-indexed.
     block:
@@ -207,7 +145,7 @@ def block_indices(block_num):
                for i in range(3) for j in range(3)]
     return indices
 
-
+# 产生一个初始解
 def initial_solution(problem):
     solution = problem.copy()
     for block in range(9):
@@ -215,20 +153,21 @@ def initial_solution(problem):
         block = problem[indices]
         # 待填入元素的索引集合
         zeros = [i for i in indices if problem[i] == 0]
-        # 待填入的元素
+        # 待填入的元素，一个block里面的数字不重复
         to_fill = [i for i in range(1, 10) if i not in block]
         random.shuffle(to_fill)
+        # 把每个要填的数字填到空里面
         for index, value in zip(zeros, to_fill):
             solution[index] = value
     return solution
 
-
+# 对一个解进行微调
 def random_move(solution, problem):
     random_solution = solution.copy()
     # 随机移动一个3x3矩阵中的两个元素
     # 选取一个3x3矩阵
     block = random.randrange(9)
-    # 得到该矩阵的元素索引范围
+    # 得到该矩阵的元素索引范围，只选取问题中要填的元素
     indices = [i for i in block_indices(block) if problem[i] == 0]
     # 随机挑选两个索引
     m, n = random.sample(indices, 2)
@@ -236,28 +175,28 @@ def random_move(solution, problem):
     random_solution[m], random_solution[n] = random_solution[n], random_solution[m]
     return random_solution
 
-
+# 计算出这个解的好坏，
 def calc_energy(solution):
     # 每列共有几个不同的数字
     def column_score(n): return - \
         len(set(solution[coord(i, n)] for i in range(9)))
     # 每行共有几个不同的数字
     def row_score(n): return -len(set(solution[coord(n, i)] for i in range(9)))
-    # 总和
+    # 总和，每一行每一列不同数字求和，注意都去了这两个都*-1了
     score = sum(column_score(n) + row_score(n) for n in range(9))
     return score
 
 # 计算接受概率
-
-
 def probability(delta, T):
     return np.exp(-delta / T)
 
+# 检查是否接收新的解
 
 def deal(x1, x2, delta, T):
-    # 求最小值，Delta < 0直接接受，> 0依概率接受
+    # Delta < 0直接接受，
     if delta < 0:
         return x2, True
+    # Delta> 0依概率接受
     p = probability(delta, T)
     if p > random.random():
         return x2, True
@@ -268,14 +207,15 @@ def print_status(trial, accept, best):
     print('Trial:', trial, 'Accept:', accept, 'Accept Rate:', '%.2f' %
           (accept / trial), 'Best:', best)
 
+#%%
 
 # 初始温度
 Tmax = 1
 # 终止温度
 Tmin = 0.1
 # 温度下降率
-rate = 0.99
-# 马尔可夫链长度
+rate = 0.8
+# 每个温度迭代次数
 length = 10000
 
 T = Tmax
@@ -283,8 +223,9 @@ T = Tmax
 # 初始化解
 solution = initial_solution(PROBLEM)
 print_sudoku(solution)
-# 最优解
+# 保存当前最优解的分数
 best_energy = calc_energy(solution)
+# 保存当前最优解
 best_solution = solution
 
 loop_count = 0
@@ -300,30 +241,37 @@ while T >= Tmin:
             # 已经得到最优解，提前退出
             if best_energy == -162:
                 break
+        # 对上一个解做个随机扰动
         random_solution = random_move(solution, PROBLEM)
-        trial += 1
+        # 计算这个解的好坏，和上一个解对比
         random_energy = calc_energy(random_solution)
         delta = random_energy - energy
+        # 决定时候接受这个新的解或者保持上一个解
         solution, accepted = deal(solution, random_solution, delta, T)
+        
         if accepted:
             accept += 1
+        # 记个数，看看试了多少次
+        trial += 1
 
-    # 已经得到最优解，提前退出
+    # 所有行和列，都没有重复的数字，已经得到最优解，提前退出
     if best_energy == -162:
         break
 
-    # 更新温度
+    # 降低温度
     T *= rate
     loop_count += 1
-    if loop_count % 10 == 0:
+    if loop_count % 1 == 0:
         print_status(trial, accept, best_energy)
 
 print('-----------END----------')
-print('Best Energy:', best_energy)
+print('Best Energy: ', best_energy,"Trial: ",trial)
 print_sudoku(best_solution)
 
 # %%
 
+# 直接采用simanneal这个库来
+from simanneal import Annealer
 
 class Sudoku_Sq(Annealer):
     def __init__(self, problem):
@@ -333,26 +281,18 @@ class Sudoku_Sq(Annealer):
 
     def move(self):
         """randomly swap two cells in a random square"""
-        block = random.randrange(9)
-        indices = [i for i in block_indices(block) if self.problem[i] == 0]
-        m, n = random.sample(indices, 2)
-        self.state[m], self.state[n] = self.state[n], self.state[m]
+        self.state=random_move(self.state,self.problem)
 
     def energy(self):
         """calculate the number of violations: assume all rows are OK"""
-
-        def column_score(n): return - \
-            len(set(self.state[coord(i, n)] for i in range(9)))
-
-        def row_score(n): return - \
-            len(set(self.state[coord(n, i)] for i in range(9)))
-        score = sum(column_score(n) + row_score(n) for n in range(9))
+        score=calc_energy(self.state)
         if score == -162:
             self.user_exit = True  # early quit, we found a solution
         return score
 
 
 sudoku = Sudoku_Sq(PROBLEM)
+# how simanneal copy states
 sudoku.copy_strategy = "method"
 print_sudoku(sudoku.state)
 sudoku.Tmax = 0.5

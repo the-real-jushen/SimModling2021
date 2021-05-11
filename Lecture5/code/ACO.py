@@ -171,58 +171,64 @@ print('最短距离：', bestDist)
 # + 每次迭代中根据信息素浓度选择路径，若遇到没有走过的路口就随机挑选一条路径，否则优先选择信息素浓度较高的路径
 
 # %% [markdown]
-# # 蚁群算法
-# ## 关键公式
-# 以TSP问题为例，设整个蚁群蚂蚁数量为m，城市数量为n，城市i和城市j之间的距离$d_{ij}(i, j=1, 2, \cdots, n)$，t时刻
-# 城市i与城市j连接路径上的信息素浓度为$\tau_{ij}(t)$。
-#
-# 初始时刻，蚂蚁被放置在不同的城市上，且各城市间连接路径上的信息素浓度相同，设$\tau_{ij}=\tau_0$。
-#
-# 然后蚂蚁按一定策略选择线路，设$p_{ij}^k(t)$为t时刻蚂蚁k从城市i转移到城市j的概率。
-#
-# 蚂蚁TSP策略会受到两个方面的影响：
-# + 访问某城市i的期望
-#
-# + 其他蚂蚁释放的信息素浓度
-#
-#
-# 因此，定义
-#
-# $$
-# p_{ij}^k(t) =
-# \begin{cases}
-# \frac{\left[ \tau_{ij}(t) \right]^\alpha \cdot \left[ \eta_{ij}(t) \right]^\beta}{\sum_{s\in allow_k \left[ \tau_{is}(t) \right]^\alpha \cdot \left[ \eta_{is}(t) \right]^\beta}} \quad &j \in allow_k \\
-# 0 \quad &j \notin allow_k
-# \end{cases}
-# $$
-#
-# 其中，$\eta_{ij}(t)$为启发函数，表示蚂蚁从城市i转移到城市j的期望；$allow_k(k=1, 2, \cdots, m)$表示蚂蚁k待访问城市的集合。$\alpha$为信息素因子，
-# 其值越大表明信息素强度影响越大；$\beta$为启发函数因子，其值越大表明启发函数影响越大。
-#
-# ![](pics\pic32.png)
+'''
+ # 蚁群算法
+ ## 关键公式
+ 以TSP问题为例，设整个蚁群蚂蚁数量为m，城市数量为n，城市i和城市j之间的距离 $d_{ij}(i, j=1, 2, \cdots, n)$，t时刻
+ 城市i与城市j连接路径上的信息素浓度为 $\tau_{ij}(t)$。
 
-# 在蚂蚁释放信息素的同时，各城市间连接路径上的信息素强度也会逐渐消失。为描述这一特征，令$\rho(0<\rho<1)$表示信息素的会发程度。
-# 这样，当蚂蚁完整走完一遍所有城市之后，各城市间路径上的信息浓度为：
-# $$
-# \begin{cases}
-# \tau_{ij}(t+1) = (1-\rho) \cdot \tau_{ij}(t) + \Delta \tau_{ij}, \quad 0 < \rho < 1 \\
-# \Delta \tau_{ij} = \sum_{k=1}^m \Delta \tau_{ij}^k
-# \end{cases}
-# $$
-#
-# 式中，$\Delta \tau_{ij}^k$表示第k只蚂蚁在城市i和j之间路径上释放信息素而增加的信息素浓度，$\Delta \tau_{ij}$为所有
-# 蚂蚁在城市i和j连接路径上释放信息素而增加的信息素浓度。
-#
-# 一般，$\Delta \tau_{ij}^k$可由ant cycle system模型计算：
-# $$
-# \Delta \tau_{ij}^k =
-# \begin{cases}
-# \frac{Q}{L_k}, & 若蚂蚁k从城市i访问城市j \\
-# 0, & 否则
-# \end{cases}
-# $$
-#
-# 其中，Q为信息素常数，表示蚂蚁循环一次释放的信息素总量，$L_k$为第k只蚂蚁经过路径的总长。
+ 初始时刻，蚂蚁被放置在不同的城市上，且各城市间连接路径上的信息素浓度相同，设$\tau_{ij}=\tau_0$。
+
+ 然后蚂蚁按一定策略选择线路，设$p_{ij}^k(t)$为t时刻蚂蚁k从城市i转移到城市j的概率。
+
+ 蚂蚁TSP策略会受到两个方面的影响：
+ + 访问某城市i的期望
+
+ + 其他蚂蚁释放的信息素浓度
+
+
+ 因此，定义
+
+ $$
+ p_{ij}^k(t) =
+ \begin{cases}
+ \frac{\left[ \tau_{ij}(t) \right]^\alpha \cdot \left[ \eta_{ij}(t) \right]^\beta}{\sum_{s\in allow_k \left[ \tau_{is}(t) \right]^\alpha \cdot \left[ \eta_{is}(t) \right]^\beta}} \quad &j \in allow_k \\
+ 0 \quad &j \notin allow_k
+ \end{cases}
+ $$
+
+ 其中，$\eta_{ij}(t)$为启发函数，表示蚂蚁从城市i转移到城市j的期望；$allow_k(k=1, 2, \cdots, m)$表示蚂蚁k待访问城市的集合。$\alpha$为信息素因子，
+ 其值越大表明信息素强度影响越大；$\beta$为启发函数因子，其值越大表明启发函数影响越大。
+
+ ![](pics\pic32.png)
+
+ 在蚂蚁释放信息素的同时，各城市间连接路径上的信息素强度也会逐渐消失。为描述这一特征，令$\rho(0<\rho<1)$表示信息素的会发程度。
+ 这样，当蚂蚁完整走完一遍所有城市之后，各城市间路径上的信息浓度为：
+ $$
+ \begin{cases}
+ \tau_{ij}(t+1) = (1-\rho) \cdot \tau_{ij}(t) + \Delta \tau_{ij}, \quad 0 < \rho < 1 \\
+ \Delta \tau_{ij} = \sum_{k=1}^m \Delta \tau_{ij}^k
+ \end{cases}
+ $$
+
+ 式中，$\Delta \tau_{ij}^k$表示第k只蚂蚁在城市i和j之间路径上释放信息素而增加的信息素浓度，$\Delta \tau_{ij}$为所有
+ 蚂蚁在城市i和j连接路径上释放信息素而增加的信息素浓度。
+
+ 一般，$\Delta \tau_{ij}^k$可由ant cycle system模型计算：
+ $$
+ \Delta \tau_{ij}^k =
+ \begin{cases}
+ \frac{Q}{L_k}, & 若蚂蚁k从城市i访问城市j \\
+ 0, & 否则
+ \end{cases}
+ $$
+
+ $$
+ \eta_{ij}(t)=\frac{1}{d_{ij}}
+ $$
+
+ 其中，Q为信息素常数，表示蚂蚁循环一次释放的信息素总量，$L_k$为第k只蚂蚁经过路径的总长。
+ '''
 # %% [markdown]
 # # 蚁群算法
 '''

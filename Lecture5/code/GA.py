@@ -364,15 +364,17 @@ print('最大价值:', best_fitness[0], '所需积分:', best_fitness[1])
 # 暴力遍历方法
 best = [0, c]
 plan = 0
+bestPlan = []
 startTime = time.time()
 for plan in range(2**n):
     # 这里借用前面的fitness函数，它返回的是一个数组，我就不改了，只用它第一个元素就行
     fitness = calc_fitness([plan])
     if fitness[0][0] > best[0] and fitness[0][1] <= c:
         best = fitness[0]
+        bestPlan = plan
 endTime = time.time()
 print("time: "+str(endTime - startTime))
-print(bin(plan))
+print(bin(bestPlan))
 print('最大价值:', best[0], '所需积分:', best[1])
 
 
