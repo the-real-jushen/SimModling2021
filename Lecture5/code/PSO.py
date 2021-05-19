@@ -251,7 +251,7 @@
 #
 # %% [markdown]
 # # 课堂练习
-# <div align=center><img src='../../pics/pic18.png' /></div>
+# <div align=center><img src='./pics/pic18.png' /></div>
 #
 # ## 目标函数
 # $$
@@ -296,6 +296,7 @@
 # $$
 #
 # %%
+from sko.PSO import PSO
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -337,9 +338,9 @@ particle = xmin + (xmax - xmin) * np.random.rand(num_particle, NDim)
 # 初始速度
 V = 0.5 * (xmax - xmin) * (np.random.rand(num_particle, NDim)-0.5)
 
-# 每个粒子适应度
+# 粒子适应度
 fitness = np.zeros((num_particle, NDim))
-# 每个粒子自身的最佳位置
+# 粒子最佳位置
 pbest = np.zeros((num_particle, NDim))
 
 # 计算初始适应度
@@ -357,9 +358,9 @@ for i in range(num_particle):
         # 若pg2不满足给定出力上下限约束则适应度为无穷
         fitness[i] = np.inf
 
-# 下面是初始化最佳位置和最佳值
-# 每个粒子的最佳位置
-pbest = particle
+for i in range(num_particle):
+    pbest[i, :] = particle[i, :]
+
 # 每个粒子的当前最佳适应度
 pbest_value = fitness
 # 当前的最佳适应度
@@ -371,7 +372,7 @@ gbest = particle[np.argmin(pbest_value)]
 obj_fun_val = np.zeros((max_iter, 1))
 
 for iter in range(max_iter):
-    # 变化惯性权重
+    # 惯性权重
     w = start_weight - (iter + 1) * weight_step
     # 速度
     V = w * V + c1 * np.random.rand() * (pbest - particle) + c2 * \
@@ -387,7 +388,6 @@ for iter in range(max_iter):
         pg2 = 100 - pg1
         if 0 <= pg2 <= 50:
             tmp_array = np.vstack((pg1, pg2, -100))
-            # S矩阵的潮流限制条件
             if (np.dot(S, tmp_array) >= -flim).all() and (np.dot(S, tmp_array) <= flim).all():
                 # 满足约束
                 fitness[i] = objective(pg1)
@@ -398,21 +398,20 @@ for iter in range(max_iter):
             # 若pg2不满足给定出力上下限约束则适应度为无穷
             fitness[i] = np.inf
 
-    # 更新粒子最佳适应度
+    # 更新粒子位置和最佳适应度
     pbest_value = np.minimum(pbest_value, fitness)
 
     # 更新每个粒子取得最佳适应度的位置
     for i in range(num_particle):
-        # 如果更新了最佳适应度就更新最佳位置，不然就不变
         if pbest_value[i] == fitness[i]:
             pbest[i] = particle[i]
 
     # 本次迭代的最佳适应度
     current_min_value = np.min(pbest_value)
-    # 更新总体最佳适应度
+    # 总体最佳适应度
     gbest_value = np.minimum(current_min_value, gbest_value)
-    # 更新总体粒子最佳位置
     if gbest_value == current_min_value:
+        # 总体粒子最佳位置
         gbest = pbest[np.argmin(pbest_value)]
 
     obj_fun_val[iter] = gbest_value
@@ -423,8 +422,80 @@ plt.plot(np.arange(0, max_iter), obj_fun_val)
 plt.xlabel('Iteration count')
 plt.ylabel('Objective function value')
 plt.show()
+# %%
+# scikit-opt文档比较全，作者是蚂蚁算法工程师，允许自定义算子，支持GPU加速等功能
+# 但是用户反映优化有点问题
+# PSO暂不支持等式约束
+
+S = np.array([
+    [0, -7 / 12, -1 / 4],
+    [0, -5 / 12, -3 / 4],
+    [0, 5 / 12, -1 / 4]
+])
+flim = [30, 80, 50]
 
 
+def objective(x): return 0.0007 * x ** 2 + 0.3 * x + 4 + \
+    0.0004 * (100 - x) ** 2 + 0.32 * (100 - x) + 3
+
+
+# -flim <= S * [[pg1], [pg2], [-100]] <= flim, 0 <= pg2 <= 50
+constraint_ueq = [lambda x: -S[i, 0] * x - S[i, 1] * (100 - x) - S[i, 2] * (-100) - flim[i] for i in range(3)] + \
+                 [lambda x: S[i, 0] * x + S[i, 1] * (100 - x) + S[i, 2] * (-100) - flim[i] for i in range(3)] + \
+                 [lambda x: 100 - x - 50, lambda x: x - 100]
+
+pso = PSO(func=objective, n_dim=1, pop=40, max_iter=500, lb=[30], ub=[
+          150], w=0.9, c1=2, c2=2, constraint_ueq=constraint_ueq)
+pso.run()
+print('PG1 =', pso.gbest_x, 'PG2 =', 100 - pso.gbest_x, 'F =', pso.gbest_y)
+plt.plot(pso.gbest_y_hist)
+plt.show()
+# %% [markdown]
+# # 课堂练习
+# <div align=center><img src='../../pics/pic18.png' /></div>
+#
+# ## 目标函数
+# $$
+# min:
+# \begin{cases}
+# F&=0.0007P_{G1}^2+0.30P_{G1}+4+\left|10*sin(0.126 * (30-P_{G1}))\right| \\
+# &+0.0004P_{G2}^2+0.32P_{G2}+3+\left|3*sin(0.378 * (0-P_{G2}))\right|
+# \end{cases}
+# $$
+#
+# ## 运行约束
+# 1. 节点功率平衡方程
+# $$ P_{G1} + P_{G2} = 100 $$
+# 2. 发电机出力上下限
+# $$ 30 \le P_{G1} \le 150 $$
+# $$ 0 \le P_{G2} \le 50 $$
+# 3. 线路潮流上下限
+# $$
+# -\left[
+# \begin{matrix}
+# 30 \\
+# 80 \\
+# 50 \\
+# \end{matrix}
+# \right]
+# \le S
+# \left[
+# \begin{matrix}
+# P_{G1} \\
+# P_{G2} \\
+# -100 \\
+# \end{matrix}
+# \right]
+# \le
+# \left[
+# \begin{matrix}
+# 30 \\
+# 80 \\
+# 50 \\
+# \end{matrix}
+# \right]
+# $$
+#
 # %% [markdown]
 # # 小结
 # ## 优点

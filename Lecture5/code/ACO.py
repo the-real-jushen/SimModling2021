@@ -86,7 +86,7 @@ def nextRoute(route):
 
 # %%
 # test of the next route method
-test = np.array([1, 2, 4, 5, 6])
+test = np.array([1, 2, 4, 5, 16])
 test2 = np.array([2, 2, 3, 4])
 x = 0
 while not np.all(test2 == test):
@@ -113,8 +113,9 @@ def evaluate(route, distMat):
 
 
 # %%
-num_city = 11
+num_city = 20
 city_coordinates, distance_matrix = generateMap(num_city)
+#%%
 # 从第一个点开始遍历路线，因为试loop
 route = [i for i in range(1, num_city)]
 bestRoute = []
@@ -298,9 +299,9 @@ bestDist = np.inf
 route2 = []
 
 # 蚂蚁数量
-num_ant = 2
+num_ant = 6
 # 信息素重要程度因子
-alpha = 1
+alpha = 2
 # 启发函数重要程度因子
 beta = 5
 # 信息素挥发速度
