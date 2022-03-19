@@ -34,7 +34,7 @@ print(res)
 # %% [markdown]
 '''
 # quiz 2, 应用3
-![avatar](./pics/pic4.png)
+![avatar](../pics/pic4.png)
 '''
 
 # %%
@@ -70,7 +70,7 @@ print("objective value: ", model.objective.value())
 # %% [markdown]
 '''
 # quiz 3, 应用4
-![avatar](./pics/pic5.png)
+![avatar](../pics/pic5.png)
 '''
 
 # %%

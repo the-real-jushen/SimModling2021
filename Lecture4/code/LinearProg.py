@@ -162,7 +162,6 @@ print(res)
 5. 约束条件不支持大与等于（4，5都还好，主要是剪出来的模型描述性不高，并不影响求解）
 '''
 
-# %%
 # %% [markdown]
 # # 混合整数线性规划简介
 # ## 分支定界法
@@ -271,3 +270,5 @@ print("objective value: ", model.objective.value())
 
 
 # ref https://realpython.com/linear-programming-python/
+
+# %%

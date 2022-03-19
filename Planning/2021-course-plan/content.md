@@ -54,13 +54,23 @@ Lecture 3
 
 ## linear programming and non-linear programming
 
+Lecture 4
+
 ## advanced optimization
+
+Lecture 5
 
 ## data sciences - basic statistics
 
+Lecture 6
+
 ## data sciences - machine learning
 
+Lecture 6
+
 ## data sciences - deep learning and modeling contests
+
+Lecture 7
 
 ## optional
 
