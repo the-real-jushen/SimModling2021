@@ -6,6 +6,8 @@
 
 ## introduction
 
+Lecture 1
+
 1. what we are going to learning
    1. about this course
       1. This course like most collage course will only scratching the surface of the subject
@@ -21,6 +23,8 @@
 
 ## Python Basics
 
+Lecture 1
+
 1. Tooling setup
    1. VSCODE
    2. anaconda
@@ -34,14 +38,19 @@
 
 ## More python skills
 
+Lecture 2
+
 1. matplotlib
 2. read and write files
 
 ## Modeling with differential equations
 
+Lecture 3
+
 1. solving differential equations
 2. ODE problem
 3. PDE problem
+4. Very basic monte carlo
 
 ## linear programming and non-linear programming
 
