@@ -5,6 +5,7 @@
 
 通过采样、实验等方式获得若干离散数据后，我们希望得到一个与当前数据分布最接近的函数（或曲线），这个过程即为拟合。
 主要利用`scipy.optimize`中的`curve_fit`接口进行拟合：
+
 调包：
 '''
 
@@ -23,7 +24,7 @@ url = 'http://raw.githubusercontent.com/jbrownlee/Datasets/master/longley.csv'
 # 这里可以看到，我们可以用pandas直接从网上把数据下载下来
 #dataframe = read_csv(url, header=None)
 # 所以你可以把它存下来下次直接读取
-#dataframe.to_csv('longley.csv')
+# dataframe.to_csv('longley.csv')
 dataframe = read_csv('longley.csv')
 data = dataframe.values
 x, y = data[:, 5], data[:, -1]

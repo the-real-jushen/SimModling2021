@@ -1,7 +1,9 @@
+#%%
 import matplotlib.dates as mdates
 import datetime as dt
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy  as np
 # %%
 # 练习，画出covid-19 confiremed case变化趋势和增长率曲线，只画出确诊累计人数最多的5个国家
 
@@ -23,7 +25,7 @@ for i in range(topCases.index.shape[0]):
     plt.plot(dates, topCases[i:i +
              1].to_numpy().reshape(-1)[:-1], label=topCases.index[i])
 
-
+#%%
 years = mdates.YearLocator()   # every year
 months = mdates.MonthLocator()  # every month
 years_fmt = mdates.DateFormatter('%Y')

@@ -1,4 +1,4 @@
-# %%
+# %% [markdown]
 '''
 ## 练习3
 下面我们做个联系，假设小明每天早上去上班要做公交车，她早上出门有70%概率坐A路，30%概率坐B路，
@@ -12,11 +12,12 @@ import matplotlib.pyplot as plt
 import random as random
 import numpy as np
 
-a = np.arange(8)
-b = np.arange(8)
-
 
 def ATime():
+    # trip
+    a = np.arange(6)
+    # stop
+    b = np.arange(6)
     for i in range(6):
         if random.random() <= 0.5:
             a[i] = 2
@@ -27,9 +28,8 @@ def ATime():
             b[i] = 0.5
         else:
             b[i] = 1
-
+    return np.sum(a)+np.sum(b)
     AT = 0
-
     for i in range(6):
         AT = AT+a[i]+b[i]
     return AT
@@ -40,6 +40,8 @@ ATime()
 
 # %%
 def BTime():
+    a = np.arange(8)
+    b = np.arange(8)
     for i in range(8):
         if random.random() <= 0.5:
             a[i] = 1
@@ -58,8 +60,9 @@ def BTime():
                 b[i] = 1
             else:
                 b[i] = 0.5
+    return np.sum(a)+np.sum(b)
     BT = 0
-    for i in range(6):
+    for i in range(8):
         BT = BT+a[i]+b[i]
     return BT
 

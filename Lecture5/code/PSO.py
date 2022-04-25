@@ -2,7 +2,7 @@
 # # 智能算法求解优化问题
 # ## 课堂练习
 #
-# <div align=center><img src='../../pics/pic14.png' /></div>
+# <div align=center><img src='./pics/pic14.png' /></div>
 #
 # $$
 # S=\left[
@@ -56,7 +56,7 @@
 # $$
 # %% [markdown]
 # # 考虑发电机阀点效应的最优潮流计算
-# <div align=center><img src='../../pics/pic17.png' /></div>
+# <div align=center><img src='./pics/pic17.png' /></div>
 #
 # $$
 # min:
@@ -67,7 +67,7 @@
 # $$
 # %% [markdown]
 # # 多峰优化问题
-# <div align=center><img src='../../pics/pic18.png' /></div>
+# <div align=center><img src='./pics/pic18.png' /></div>
 #
 # ## 目标函数
 # $$
@@ -117,33 +117,33 @@
 # 计算智能主要包括：
 #
 # 1. **进化计算**、**群智能计算**
-# <div align=center><img src='../../pics/pic19.png' /></div>
+# <div align=center><img src='./pics/pic19.png' /></div>
 # <p align=center>https://ieeexplore.ieee.org/xpl/aboutJournal.jsp?punumber=4235</p>
 #
 # 2. **神经计算**
-# <div align=center><img src='../../pics/pic20.png' /></div>
+# <div align=center><img src='./pics/pic20.png' /></div>
 # <p align=center>https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=5962385</p>
 #
 # 3. **模糊计算**
-# <div align=center><img src='../../pics/pic21.png' /></div>
+# <div align=center><img src='./pics/pic21.png' /></div>
 # <p align=center>https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=91</p>
 # %% [markdown]
 # # 测试函数库
 #
 # **高维单模函数**：只有一个极值点，决策变量多
-# <div align=center><img src='../../pics/pic22.png' /></div>
+# <div align=center><img src='./pics/pic22.png' /></div>
 #
 # **高维多模函数**：多极值点，决策变量多
-# <div align=center><img src='../../pics/pic23.png' /></div>
+# <div align=center><img src='/pics/pic23.png' /></div>
 #
 # **低维多模函数**：多极值点，决策变量少
-# <div align=center><img src='../../pics/pic24.png' /></div>
+# <div align=center><img src='./pics/pic24.png' /></div>
 #
 # %% [markdown]
 # # 测试函数库——举例
-# <div align=center><img src='../../pics/pic25.png' /></div>
+# <div align=center><img src='./pics/pic25.png' /></div>
 #
-# <div align=center><img src='../../pics/pic26.png' /></div>
+# <div align=center><img src='./pics/pic26.png' /></div>
 #
 # %% [markdown]
 # # 群体智能
@@ -241,13 +241,13 @@
 # # 课堂练习
 #
 # **高维单模函数**：只有一个极值点，决策变量多
-# <div align=center><img src='../../pics/pic22.png' /></div>
+# <div align=center><img src='./pics/pic22.png' /></div>
 #
 # **高维多模函数**：多极值点，决策变量多
-# <div align=center><img src='../../pics/pic23.png' /></div>
+# <div align=center><img src='./pics/pic23.png' /></div>
 #
 # **低维多模函数**：多极值点，决策变量少
-# <div align=center><img src='../../pics/pic24.png' /></div>
+# <div align=center><img src='./pics/pic24.png' /></div>
 #
 # %% [markdown]
 # # 课堂练习
@@ -314,7 +314,8 @@ flim = np.array([30, 80, 50]).reshape(3, 1)
 # PG1为自变量，通过PG1+PG2=100约束获得PG2
 xmin = 30
 xmax = 150
-
+pg2Min = 0
+pg2Max = 50
 NDim = 1
 
 max_iter = 500  # 迭代次数
@@ -347,7 +348,7 @@ pbest = np.zeros((num_particle, NDim))
 for i in range(num_particle):
     pg1 = particle[i, :]
     pg2 = 100 - pg1
-    if 0 <= pg2 <= 50:
+    if pg2Min <= pg2 <= pg2Max:
         tmp_array = np.vstack((pg1, pg2, -100))
         if (np.dot(S, tmp_array) >= -flim).all() and (np.dot(S, tmp_array) <= flim).all():
             fitness[i] = objective(pg1)

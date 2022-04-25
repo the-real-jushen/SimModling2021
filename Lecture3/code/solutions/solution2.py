@@ -1,6 +1,6 @@
 
 
-#%%[markdown]
+# %%[markdown]
 '''
 因为有二阶导数，所以y和y'都是需要求解的对象,y''就比较麻烦了，
 加速度是由空气阻力，重力同时提供的。
@@ -20,59 +20,74 @@ y''=-np.sin(Ds[0] / r) * g - Ds[1] * dragCoef\\
 $$
 '''
 
-#%%
+# %%
 from scipy.integrate import solve_ivp
 import numpy as np
 import matplotlib.pyplot as plt
 
-#%% defineing the equations
+# %% defineing the equations
 # the swing process
+
+
 def swing(t, Ds):
     dDdt = Ds[1]
     dVdt = -np.sin(Ds[0] / r) * g - Ds[1] * dragCoef
     return np.array([dDdt, dVdt])
 
 # the fall process
+
+
 def fall(t, Y):
     # there are 4 unknowns x,y and x', y'
     # return y', y'',x',x''
     return np.array([Y[1], -g - Y[1] * dragCoef, Y[3], -Y[3] * dragCoef])
 
 # when the rope does not pull, stop swinging and start falling
+
+
 def fallEvent(t, Ds):
     fall = 1
     D = Ds[0]
     V = Ds[1]
     # the rope has 0 force then fall
-    if V**2 / r + np.cos(D / r) * g <= 0:  
+    return V**2 / r + np.cos(D / r) * g
+    if V**2 / r + np.cos(D / r) * g <= 0:
         fall = 0
     return fall
+
 
 fallEvent.terminal = True
 fallEvent.direction = -1
 
 # when the ball stopped at the left top position, stop the swing process
+
+
 def topEvent(t, Ds):
     return Ds[1]
+
 
 topEvent.terminal = True
 topEvent.direction = 1
 
-#  when the ball is out of the circular path, limitied by the rope length, 
+#  when the ball is out of the circular path, limitied by the rope length,
 # stop the free process
+
+
 def outEvent(t, Ys):
     y = Ys[0]
     x = Ys[2]
     value = 1
     #  when the ball is out of the circular path, limitied by the rope length, give it a margin
-    if x ** 2 + y ** 2 > r+0.01:  
+    return r - (x ** 2 + y ** 2)
+    if x ** 2 + y ** 2 > r+0.01:
         value = 0
     return value
+
 
 outEvent.terminal = True
 outEvent.direction = -1
 
-#%% solve
+# %% solve
 r = 1  # radius of swing, rope length
 g = 9.8
 dragCoef = 1  # drag coeffient / speed
@@ -80,25 +95,26 @@ dragCoef = 1  # drag coeffient / speed
 t0 = 0
 tf = 30
 # initial speed when the ball is at the bottom, clockwise is positive
-speed0 = 20  
+speed0 = 20
 
 # start at the bottom with speed0
-D0 = [0, speed0]  
+D0 = [0, speed0]
 
 # solve the swing process
-sol0 = solve_ivp(swing, [t0, tf], D0, events=[fallEvent, topEvent], max_step=0.02)
+sol0 = solve_ivp(swing, [t0, tf], D0, events=[
+                 fallEvent, topEvent], max_step=0.02)
 solSwing = sol0.y[0]
 
 solFall = []
-# if event 0 (fallEvent) stopped the solution process, then it starts to fall 
-if sol0.t_events[0].any():  
+# if event 0 (fallEvent) stopped the solution process, then it starts to fall
+if sol0.t_events[0].any():
     # the postion and speed when the event happend
     De = sol0.y_events[0][0]
     V = De[1]  # the speed tangential to the circular trajectory
     D = De[0]  # the position of the ball at the circular trajectory
     # calculate the x, y speed of ball
     speedx = np.cos(D / r) * V
-    speedy = np.sin(D / r)
+    speedy = np.sin(D / r)*V
     # calculate the x, y position of ball
     y0 = -np.cos(D / r)
     x0 = np.sin(D / r)

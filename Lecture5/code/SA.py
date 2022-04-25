@@ -81,18 +81,19 @@
 # + 数字 1-9 在每一列只能出现一次。
 # + 数字 1-9 在每一个以粗实线分隔的 3x3 宫格内只能出现一次。
 #
-# <div align=center><img src='../../pics/pic31.png' /></div>
+# <div align=center><img src='pics/pic31.png' /></div>
 
 
 # %% [markdown]
 # ## 模拟退火算法解数独
-# 设定目标函数为所有行独立元素（每行中该元素只有一个）的个数之加上与每列独立元素个数之和。则最优目标为162$(9\times 9\times 2）$。
+# 设定目标函数为所有行独立元素（每行中该元素只有一个）的个数之加上与每列独立元素个数之和。则最优目标为162 $(9\times 9\times 2）$。
 #
 # 将整个$9\times 9$的矩阵分为9个$3\times 3$的小矩阵，每次随机挑选一个小矩阵，在小矩阵中随机挑选两个元素进行交换，得到的大矩阵作为新解用于计算下一个状态。
 #
 # 为什么在$3\times 3$矩阵中交换元素而不是直接在$9\times 9$矩阵中交换？因为后者不能保证每个小矩阵中各元素独立，可能导致算法不能收敛。
 # %%
 
+# from simanneal import Annealer
 import numpy as np
 import random
 
@@ -114,6 +115,8 @@ PROBLEM = np.array([
 ])
 
 # 打印数独当前状态
+
+
 def print_sudoku(state):
     border = "------+-------+------"
     rows = [state[i:i+9] for i in range(0, 81, 9)]
@@ -128,10 +131,14 @@ def print_sudoku(state):
     print(border)
 
 # 返回某个坐标的index
+
+
 def coord(row, col):
     return row * 9 + col
 
 # 分会某一个方块的里面元素的indices
+
+
 def block_indices(block_num):
     """return linear array indices corresp to the sq block, row major, 0-indexed.
     block:
@@ -146,6 +153,8 @@ def block_indices(block_num):
     return indices
 
 # 产生一个初始解
+
+
 def initial_solution(problem):
     solution = problem.copy()
     for block in range(9):
@@ -162,6 +171,8 @@ def initial_solution(problem):
     return solution
 
 # 对一个解进行微调
+
+
 def random_move(solution, problem):
     random_solution = solution.copy()
     # 随机移动一个3x3矩阵中的两个元素
@@ -176,6 +187,8 @@ def random_move(solution, problem):
     return random_solution
 
 # 计算出这个解的好坏，
+
+
 def calc_energy(solution):
     # 每列共有几个不同的数字
     def column_score(n): return - \
@@ -187,10 +200,13 @@ def calc_energy(solution):
     return score
 
 # 计算接受概率
+
+
 def probability(delta, T):
     return np.exp(-delta / T)
 
 # 检查是否接收新的解
+
 
 def deal(x1, x2, delta, T):
     # Delta < 0直接接受，
@@ -207,7 +223,8 @@ def print_status(trial, accept, best):
     print('Trial:', trial, 'Accept:', accept, 'Accept Rate:', '%.2f' %
           (accept / trial), 'Best:', best)
 
-#%%
+# %%
+
 
 # 初始温度
 Tmax = 1
@@ -248,7 +265,7 @@ while T >= Tmin:
         delta = random_energy - energy
         # 决定时候接受这个新的解或者保持上一个解
         solution, accepted = deal(solution, random_solution, delta, T)
-        
+
         if accepted:
             accept += 1
         # 记个数，看看试了多少次
@@ -265,13 +282,13 @@ while T >= Tmin:
         print_status(trial, accept, best_energy)
 
 print('-----------END----------')
-print('Best Energy: ', best_energy,"Trial: ",trial)
+print('Best Energy: ', best_energy, "Trial: ", trial)
 print_sudoku(best_solution)
 
 # %%
 
 # 直接采用simanneal这个库来
-from simanneal import Annealer
+
 
 class Sudoku_Sq(Annealer):
     def __init__(self, problem):
@@ -281,11 +298,11 @@ class Sudoku_Sq(Annealer):
 
     def move(self):
         """randomly swap two cells in a random square"""
-        self.state=random_move(self.state,self.problem)
+        self.state = random_move(self.state, self.problem)
 
     def energy(self):
         """calculate the number of violations: assume all rows are OK"""
-        score=calc_energy(self.state)
+        score = calc_energy(self.state)
         if score == -162:
             self.user_exit = True  # early quit, we found a solution
         return score

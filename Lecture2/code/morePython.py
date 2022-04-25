@@ -31,7 +31,7 @@ y = np.sin(x)
 plt.plot(x, y)
 plt.show()
 # %%
-# 如果你连续调用过次，一个图中就会被画上多个曲线，自动变成不同的颜色
+# 如果你连续调用多次，一个图中就会被画上多个曲线，自动变成不同的颜色
 
 y2 = np.sin(x+math.pi/2)
 plt.plot(x, y)
@@ -45,7 +45,7 @@ plt.plot(x, y2)
 1. 首先就是x，y，就是两个轴
 2. alphas是图的不透明度，1完全不能不透明，0完全透明
 3. label是这条曲线的表签，会显示在legend里面
-4. color是现得颜色，
+4. color是线得颜色，
 5. linestyle是现得类型，比如是不是虚线什么的，linewidth是线的宽度
 6. marker是数据点的标志，markersize, markerfacecolor，markeredgecolor是控制marker的，不用我解释了吧
 7. ylim，xlim就是数据轴的限制，一般是自动的，但是你也可以控制只显示图的一部分
@@ -168,7 +168,7 @@ plt.title('Cosine')
 '''
 # %%
 # scatter plot
-dots1 = np.random.multivariate_normal((1, 1), ((1, 0), (0, 1)), 50)
+dots1 = np.random.multivariate_normal((1, 1), ((0.3, 0), (0, 0.3)), 50)
 dots2 = np.random.multivariate_normal((3, 3), ((1, 0), (0, 1)), 50)
 plt.scatter(dots1[:, 0], dots1[:, 1], c='r', s=dots1[:, 0]*30)
 plt.scatter(dots2[:, 0], dots2[:, 1], c='g', s=dots2[:, 1]*20)
@@ -186,7 +186,7 @@ https://matplotlib.org/stable/tutorials/toolkits/mplot3d.html#toolkit-mplot3d-tu
 # %%
 # 首先我们先import Axes3D
 # from mpl_toolkits.mplot3d import Axes3D
-x = np.array(np.arange(-2, 2, 0.2))
+x = np.arange(-2, 2, 0.2)
 x = x.reshape(1, x.shape[0])
 y = x.T
 z = x * np.exp(-x ** 2 - y ** 2)
@@ -207,7 +207,7 @@ plt.contour(X, Y, z, levels=20)  # 绘制等高线
 '''
 ## 坐标轴不一定要是线性的
 
-下面分别展示了线性坐标轴，对数坐标轴，对阵对数坐标轴（我不知道干啥用的），还有logit坐标轴的用法。
+下面分别展示了线性坐标轴，对数坐标轴，对称对数坐标轴（我不知道干啥用的），还有logit坐标轴的用法。
 '''
 # %%
 # make up some data in the open interval (0, 1)
