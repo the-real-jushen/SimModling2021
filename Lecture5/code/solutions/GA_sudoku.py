@@ -188,7 +188,7 @@ def select(fitness_list, chromosome_list, selection_num):
 
 
 # 迭代次数
-max_iter = 20
+max_iter = 200
 iter = 0
 chromo_pop_size = 100
 # 选择数目
@@ -201,8 +201,9 @@ chromosome_states = init_population(chromo_pop_size, PROBLEM)
 
 while iter < max_iter:
     fitnesses = calc_fitness(chromosome_states)
-    if np.max(fitnesses) == 162:
-        break
+    # if np.max(fitnesses) == 162:
+    #     break
+    
 
     if len(fitnesses) > selection_num:
         fitnesses, chromosome_states = select(

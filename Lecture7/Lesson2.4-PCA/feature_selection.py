@@ -121,6 +121,77 @@ PetelLength这个特征。
 好然后我们来看筛选特征之后怎么用到模型里，这里模型我们还是用SVM：
 '''
 
+#%%
+from sklearn.metrics import confusion_matrix, roc_curve, auc, ConfusionMatrixDisplay, plot_confusion_matrix
+from matplotlib import pyplot as plt
+import numpy as np
+
+
+def plot_cm(model, y_true, y_pred, name=None):
+    """画混淆矩阵
+    :param model: 分类模型
+    :param y_true: 标签实际值
+    :param y_pred: 标签预测值
+    :param name: 模型名称
+    """
+    _, ax = plt.subplots()
+    if name is not None:
+        ax.set_title(name)
+    cm = confusion_matrix(y_true, y_pred)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+    disp.plot(ax=ax)
+    plt.show()
+    return None
+
+
+def plot_cm_ratio(model, y_true, y_pred, name=None):
+    """画混淆矩阵（按占各类型比例）
+    :param model: 分类模型
+    :param y_true: 标签实际值
+    :param y_pred: 标签预测值
+    :param name: 模型名称
+    """
+    _, ax = plt.subplots()
+    if name is not None:
+        ax.set_title(name)
+    cm = confusion_matrix(y_true, y_pred)
+    cm_ratio = np.zeros(cm.shape)
+    for i in range(len(cm)):
+        for j in range(len(cm[i])):
+            cm_ratio[i, j] = cm[i, j] / cm[i].sum()
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm_ratio, display_labels=model.classes_)
+    disp.plot(ax=ax)
+    plt.show()
+    return None
+
+
+def model_perf(model, y_true, y_pred, name=None):
+    """返回模型分类准确率，tpr，fpr
+    """
+    if name is not None:
+        print('For model {}: \n'.format(name))
+    cm = confusion_matrix(y_true, y_pred)
+    for i in range(len(model.classes_)):
+        tp = cm[i, i]
+        fp = cm[:, i].sum() - cm[i, i]
+        fn = cm[i, :].sum() - cm[i, i]
+        tn = cm.sum() - tp - fp - fn
+        tpr = tp / (tp + fn)
+        fpr = fp / (tn + fp)
+        acc = (tp + tn) / cm.sum()
+        print('For class {}: \n TPR is {}; \n FPR is {}; \n ACC is {}. \n'
+        .format(model.classes_[i], tpr, fpr, acc))
+    return None
+
+
+def ovo_eval(model, name=None):
+    model.fit(X_train, y_train)
+    prediction = model.predict(X_test)
+    plot_cm(model, y_test, prediction, name)
+    plot_cm_ratio(model, y_test, prediction, name)
+    model_perf(model, y_test, prediction, name)
+    print('Overall Accuracy: {}'.format(model.score(X_test, y_test)))
+
 # %%
 
 # 这里如果出不来先在工作区里运行一下上一讲里的classification.py
@@ -128,10 +199,10 @@ PetelLength这个特征。
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 pca = PCA(n_components=1)
-X_train, X_test, y_train, y_test = train_test_split(iris.iloc[:, :-1], iris.iloc[:, -1], 
+X_train_old, X_test_old, y_train, y_test = train_test_split(iris.iloc[:, :-1], iris.iloc[:, -1], 
 test_size=.5, random_state=0)
 pca.fit(X_train)
-X_train_new, X_test_new = pca.transform(X_train), pca.transform(X_test)
+X_train, X_test = pca.transform(X_train_old), pca.transform(X_test_old)
 
 model = SVC(kernel='rbf')
 model.fit(X_train, y_train)

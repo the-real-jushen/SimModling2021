@@ -177,3 +177,5 @@ while T >= Tmin:
 
 
 print(best_solution)
+
+# %%
