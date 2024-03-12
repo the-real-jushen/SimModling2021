@@ -30,3 +30,47 @@ complaints[complaints['Complaint Type'] ==
 is_noise = complaints['Complaint Type'].str.contains("Noise")
 in_brooklyn = complaints['Borough'] == "BROOKLYN"
 complaints[is_noise & in_brooklyn]
+
+#%% [markdown]
+""" 
+一个小球，在地球上水平抛出，初始高度为h，速度为v，落地后弹起时，
+垂直速度为原来的0.7水平速度不变，请画出他在第二次落地前的轨迹
+
+增加一点难度，如果起的最高点小于m，这次落地以后就结束绘图
+ """
+
+#%%
+def ball(h, v,m):
+    g = 9.8
+    d=0
+    plt.axhline(y=m, color='r', linestyle='--') 
+    while True:
+        if d==0:
+            # the initial drop
+            fallTime = (2*h/g)**0.5
+            v2 = fallTime*0.7*g
+        else:
+            # the bounce
+            fallTime=v2/g*2
+            
+        # the horizontal move
+        h_dist=v*fallTime
+        x1 = np.linspace(0, v*fallTime, 20)
+        yTime = x1/v
+        
+        if d==0:
+            # the initial drop, y coordinates at x time
+            y1 = h-0.5*g*yTime**2
+        else:
+            # bounce, free fall with positive initial speed at ground level,
+            # y coordinates at x time
+            y1 = yTime*v2-0.5*g*yTime**2
+            h=np.max(y1)
+            v2 = v2*0.7
+        plt.plot(x1+d, y1)
+        d=d+h_dist
+        if h<m:
+            break
+
+
+ball(10, 10,3)
