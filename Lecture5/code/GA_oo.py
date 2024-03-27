@@ -169,8 +169,9 @@
 # %%
 # 染色体用整数表示，每个bit由0和1表示是否取某件物品
 import numpy as np
-from numpy import random
+import random
 import time
+from typing import List
 c = 900  # 背包容量
 n = 8  # 物品数量
 # 物品重量
@@ -195,15 +196,64 @@ last_diff = 65536
 # 若连续两代改变量均小于5则停止迭代
 # fitness list里面每个元素是[价值，和消耗积分]
 
+class BiChromosome:
+    cost_table=weight
+    value_table=value
+    def __init__(self,size) -> None:
+        self.size=size
+        self.value=0
+        self.cost=0
+        #random init
+        self.chromosome = random.randint(0, (1 << chromosome_size) - 1)
+        self.calc_fitness()
+    
+    def set_chromo(self,new_chromo):
+        self.chromosome=new_chromo
+        self.calc_fitness()
 
-def is_finished(fitness_list):
+    # 计算适应度
+    def calc_fitness(self):
+        self.value=0
+        self.cost=0
+        for i in range(chromosome_size):
+            mask = 1 << (chromosome_size - i - 1)
+            # 看某一位是否为1，是表明取该物品，更新重量和价值的总和
+            if self.chromosome & mask:
+                self.cost += BiChromosome.cost_table[i]
+                self.value += BiChromosome.value_table[i]
+    
+    # 自我变异
+    def mutate(self):
+        pos = random.choice(range(self.size))
+        # 变异操作
+        # 异或操作对某一位取反
+        mask = 1 << pos
+        new_chromosome = self.chromosome ^ mask
+        self.set_chromo(new_chromosome)
+        
+    
+    # 交叉
+    # added_numsh是新一代的数量
+    def crossover(self,mate):
+        pos = random.choice(range(self.size))
+        # 2号父染色体掩码，保留地位
+        mask2 = (1 << (chromosome_size - pos)) - 1
+        # 1号父染色体掩码，保留高位
+        mask1 = (1 << chromosome_size) - 1 - mask2
+        # 子代染色体，P1高位和p2低位结合
+        new_chrome=(self.chromosome & mask1) + (mate.chromosome & mask2)
+        next_gen=BiChromosome(self.size)
+        next_gen.set_chromo(new_chrome)
+        return next_gen
+     
+def is_finished(chromo_pop:List[BiChromosome]):
     global last_max_value
     global last_diff
     # 计算这一代的最佳适应值
     curr_max_value = 0
-    for f in fitness_list:
-        if f[0] > curr_max_value:
-            curr_max_value = f[0]
+    for chromo in chromo_pop:
+        if chromo.value > curr_max_value:
+            curr_max_value = chromo.value
 
     # 与上一代的最佳适应度改变量
     diff = curr_max_value - last_max_value
@@ -217,115 +267,55 @@ def is_finished(fitness_list):
         return False
 
 # 初始化种群
-
-
 def init_population(pop_size, chromosome_size):
     chromosome_states = []
     for _ in range(pop_size):
-        # 随机产生染色体,这里热暗色体用的二进制编码
-        chromosome = random.randint(0, (1 << chromosome_size) - 1)
-        chromosome_states.append(chromosome)
+        chromosome_states.append(BiChromosome(chromosome_size))
     return chromosome_states
 
-# 计算适应度
-
-
-def calc_fitness(chromosome_states):
-    fitness_list = []
-    for chromosome in chromosome_states:
-        # 物品重量
-        value_sum = 0
-        # 物品价值
-        weight_sum = 0
-
-        # 计算总价值和总重量
-        for i in range(chromosome_size):
-            mask = 1 << (chromosome_size - i - 1)
-            # 看某一位是否为1，是表明取该物品，更新重量和价值的总和
-            if chromosome & mask:
-                weight_sum += weight[i]
-                value_sum += value[i]
-
-        fitness_list.append([value_sum, weight_sum])
-    return fitness_list
 
 # 筛选
-
-
-def filter(chromosome_states, fitness_list):
-    acceptable_fitness_list = []
+def filter(chromo_pop:List[BiChromosome]):
     acceptable_chromosome_list = []
     # 重量超过背包容许重量的直接淘汰
-    for i, f in enumerate(fitness_list):
-        if f[1] < c:
-            acceptable_fitness_list.append(f)
-            acceptable_chromosome_list.append(chromosome_states[i])
-
-    return acceptable_fitness_list, acceptable_chromosome_list
+    for chrome in chromo_pop:
+        if chrome.cost < c:
+            acceptable_chromosome_list.append(chrome)
+    return acceptable_chromosome_list
 
 # 锦标赛选择法
 # 每次放回地随机挑选两个染色体，选取适应度较高的存活到下一代
-
-
-def select(fitness_list, chromosome_list):
-    survivor_fitness_list = []
-    survivor_chromosome_list = []
-    for _ in range(selection_num):
-        num = len(fitness_list)
+def select(chromo_pop:List[BiChromosome],next_gen_num):
+    survivors= []
+    for _ in range(next_gen_num):
         # 随机挑选两个染色体
-        idx1 = random.randint(0, num - 1)
-        idx2 = random.randint(0, num - 1)
+        candidates = random.sample(chromo_pop,2)
         # 竞争
-        if fitness_list[idx1][0] > fitness_list[idx2][0]:
-            survivor_fitness_list.append(fitness_list[idx1])
-            survivor_chromosome_list.append(chromosome_list[idx1])
+        if candidates[0].value > candidates[1].value:
+            survivors.append(candidates[0])
         else:
-            survivor_fitness_list.append(fitness_list[idx2])
-            survivor_chromosome_list.append(chromosome_list[idx2])
-    return survivor_fitness_list, survivor_chromosome_list
+            survivors.append(candidates[1])
+    return survivors
 
 # 交叉
-# added_numsh是新一代的数量
-
-
-def crossover(chromosome_states, added_num):
-    next_gen_chromosome_states = []
+# added_num是新一代的数量
+def crossover_all(chromo_pop:List[BiChromosome], added_num):
+    next_gen = []
     # 父代染色体集合
-    prev_gen_chromosome_states = chromosome_states.copy()
     for _ in range(added_num):
         # 随机挑选两个不同的父代染色体
-        parent1 = random.choice(prev_gen_chromosome_states)
-        parent2 = parent1
-        while parent2 == parent1:
-            parent2 = random.choice(prev_gen_chromosome_states)
-        # 随机选取交叉位置
-        pos = random.choice(range(chromosome_size))
-        # 2号父染色体掩码，保留地位
-        mask2 = (1 << (chromosome_size - pos)) - 1
-        # 1号父染色体掩码，保留高位
-        mask1 = (1 << chromosome_size) - 1 - mask2
-        # 子代染色体，P1高位和p2低位结合
-        next_gen_chromosome_states.append(
-            (parent1 & mask1) + (parent2 & mask2))
-
-    return next_gen_chromosome_states
+        parents = random.sample(chromo_pop,2)
+        next_gen.append(parents[0].crossover(parents[1]))
+    return next_gen
 
 # 变异
-
-
-def mutate(chromosome_states):
+def mutate_all(chromo_pop:List[BiChromosome],mutation_num):
     # 需要编译的数量=mutation_num
+    next_gen=[]
     for _ in range(mutation_num):
-        # 随机选择染色体
-        idx = random.randint(0, len(chromosome_states)-1)
-        # 随机挑选变异位的位置
-        pos = random.choice(range(chromosome_size))
-        # 变异操作
-        # 异或操作对某一位取反
-        mask = 1 << pos
-        chromosome_states[idx] = chromosome_states[idx] ^ mask
-
-    return chromosome_states
+        candidate = random.choice(chromo_pop)
+        candidate.mutate()
+    
 
 
 # 迭代次数
@@ -334,48 +324,30 @@ iter = 0
 
 # 初始化染色体
 startTime = time.time()
-chromosome_states = init_population(chromo_pop_size, chromosome_size)
+population = init_population(chromo_pop_size, chromosome_size)
 
 while iter < max_iter:
-    fitnesses = calc_fitness(chromosome_states)
-    if is_finished(fitnesses):
+    if is_finished(population):
         break
     # 筛选，淘汰超出背包重量的染色体
-    fitnesses, chromosome_states = filter(chromosome_states, fitnesses)
+    population = filter(population)
     # 选择
-    if len(fitnesses) > selection_num:
-        fitnesses, chromosome_states = select(fitnesses, chromosome_states)
+    if len(population) > selection_num:
+        population = select(population,selection_num)
     # 交叉，补充新的到population数量
-    chromosome_states += crossover(chromosome_states,
-                                   chromo_pop_size - len(chromosome_states))
+    population += crossover_all(population,chromo_pop_size - len(population))
     # 变异
-    chromosome_states = mutate(chromosome_states)
+    mutate_all(population,mutation_num)
     iter += 1
 endTime = time.time()
 print("time: "+str(endTime - startTime))
 # 迭代结束，寻出最好的个体
-fitnesses, chromosome_states = filter(chromosome_states, fitnesses)
-best_fitness = max(fitnesses, key=lambda x: x[0])
-idx = fitnesses.index(best_fitness)
-print(bin(chromosome_states[idx]))
-print('最大价值:', best_fitness[0], '所需积分:', best_fitness[1])
+population = filter(population)
+best = max(population, key=lambda x: x.value)
 
-# %%
-# 暴力遍历方法
-best = [0, c]
-plan = 0
-bestPlan=0
-startTime = time.time()
-for plan in range(2**n):
-    # 这里借用前面的fitness函数，它返回的是一个数组，我就不改了，只用它第一个元素就行
-    fitness = calc_fitness([plan])
-    if fitness[0][0] > best[0] and fitness[0][1] <= c:
-        best = fitness[0]
-        bestPlan=plan
-endTime = time.time()
-print("time: "+str(endTime - startTime))
-print(bin(bestPlan))
-print('最大价值:', best[0], '所需积分:', best[1])
+print(bin(best.chromosome))
+print('最大价值:', best.value, '所需积分:', best.cost)
+
 
 
 # %% [markdown]

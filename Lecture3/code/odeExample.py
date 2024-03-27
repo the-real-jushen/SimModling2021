@@ -4,6 +4,11 @@
 可以参考：  
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html
 '''
+'''
+我们先做下面这个题：
+
+> 设位于坐标原点的甲舰向位于 x 轴上点 A（1,0）处的乙舰发射导弹，导弹头始终对准乙舰。如果乙舰以最大速度 1 沿平行于 y 轴的直线行驶，导弹的速度为 5，求导弹的运行的曲线方程，以及乙舰行驶多远时，导弹将击中它？
+'''
 
 # %%
 # 我们用scypi的solve_ivp，ivp就是initial value problem
@@ -18,7 +23,6 @@ print('---')
 $$
 \begin{cases}
 x'=\frac{5(1-x)}{\sqrt{(1-x)^2+(t-y)^2}}\\
-
 y'=\frac{5(t-y)}{\sqrt{(1-x)^2+(t-y)^2}}  \\
 x(0)=0,y(0)=0
 \end{cases}
@@ -46,7 +50,7 @@ tf = 0.3
 sol = solve_ivp(eq2, [t0, tf], [0, 0], max_step=0.005)
 #
 y = sol.y
-print(y)
+print(y.shape)
 
 plt.axvline(x=1, ymin=0, ymax=1, color='r')
 plt.plot(y[0], y[1], '*')  # 导弹的运动曲线

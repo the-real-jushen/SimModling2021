@@ -73,4 +73,6 @@ def ball(h, v,m):
             break
 
 
-ball(10, 10,3)
+ball(10, 10,2)
+
+# %%
