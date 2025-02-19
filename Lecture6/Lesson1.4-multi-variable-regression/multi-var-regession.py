@@ -104,7 +104,7 @@ plt.show()
 '''
 ## 更多变量回归
 
-Quiz:
+### Quiz:
 
 >exp4 这个是年龄，血压，是否吸烟和未来10年发生中风的概率的关系，现在让你预测一个人是否未来会发生中风。
 
@@ -138,5 +138,3 @@ df.head()
 # %%
 df.replace(to_replace=('Yes', 'No'), value=(1, 0), inplace=True)
 df.head()
-
-# %%

@@ -39,6 +39,7 @@ X_int = sm.add_constant(X)
 model = sm.OLS(y, X_int)
 res = model.fit()
 res.summary()
+
 # %%
 # 多项式模型
 

@@ -288,6 +288,8 @@ models['RandomForest'] = RandomForestClassifier(n_estimators=100)  # n_estimator
 # 要注意模型在训练过程中一定没有见过测试集的任何信息
 X_train, X_test, y_train, y_test = train_test_split(iris.iloc[:, :-1], iris.iloc[:, -1], 
 test_size=.5, random_state=0)
+
+
 # %%
 from sklearn.metrics import confusion_matrix, roc_curve, auc, ConfusionMatrixDisplay, plot_confusion_matrix
 from matplotlib import pyplot as plt
@@ -351,7 +353,7 @@ def model_perf(model, y_true, y_pred, name=None):
     return None
 
 
-def ovo_eval(model, name=None):
+def ovo_eval(model,X_train, y_train, name=None):
     model.fit(X_train, y_train)
     prediction = model.predict(X_test)
     plot_cm(model, y_test, prediction, name)
@@ -360,5 +362,5 @@ def ovo_eval(model, name=None):
     print('Overall Accuracy: {}'.format(model.score(X_test, y_test)))
 # %%
 for name, model in models.items():
-    ovo_eval(model, name)
+    ovo_eval(model,X_train, y_train, name)
 # %%

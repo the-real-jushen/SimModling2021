@@ -100,13 +100,7 @@ from sklearn import model_selection
 iris = pd.read_csv('exp9.csv')
 iris.drop(columns=['Id'], inplace=True)
 
-# %%
-from sklearn.decomposition import PCA
 
-pca = PCA(n_components=4)
-pca.fit(iris.iloc[:, :-1].values)
-print('components matrix: \n\n {} \n'.format(pca.components_))
-print('explained variance ratio: \n\n {}'.format(pca.explained_variance_ratio_))
 # %% [markdown]
 
 '''
@@ -121,7 +115,9 @@ PetelLength这个特征。
 好然后我们来看筛选特征之后怎么用到模型里，这里模型我们还是用SVM：
 '''
 
+
 #%%
+#定义必要的函数
 from sklearn.metrics import confusion_matrix, roc_curve, auc, ConfusionMatrixDisplay, plot_confusion_matrix
 from matplotlib import pyplot as plt
 import numpy as np
@@ -184,7 +180,7 @@ def model_perf(model, y_true, y_pred, name=None):
     return None
 
 
-def ovo_eval(model, name=None):
+def ovo_eval(model,X_train, y_train,X_test,y_test, name=None):
     model.fit(X_train, y_train)
     prediction = model.predict(X_test)
     plot_cm(model, y_test, prediction, name)
@@ -192,19 +188,48 @@ def ovo_eval(model, name=None):
     model_perf(model, y_test, prediction, name)
     print('Overall Accuracy: {}'.format(model.score(X_test, y_test)))
 
-# %%
 
+# %%
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=4)
+pca.fit(iris.iloc[:, :-1].values)
+print('components matrix: \n\n {} \n'.format(pca.components_))
+print('explained variance ratio: \n\n {}'.format(pca.explained_variance_ratio_))
+
+#%%
 # 这里如果出不来先在工作区里运行一下上一讲里的classification.py
 # 或者你把那一套函数粘过来也行
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-pca = PCA(n_components=1)
+from matplotlib import pyplot as plt
+pca = PCA(n_components=2)
 X_train_old, X_test_old, y_train, y_test = train_test_split(iris.iloc[:, :-1], iris.iloc[:, -1], 
 test_size=.5, random_state=0)
-pca.fit(X_train)
+pca.fit(X_train_old)
 X_train, X_test = pca.transform(X_train_old), pca.transform(X_test_old)
 
+
+
+# %%
+# 测试一下用PCA模型训练结果
+# Define colors for each class
+colors = ['blue', 'red', 'green']
+y_color=[]
+for sample in y_train:
+    if sample=="Iris-setosa":
+        y_color.append(colors[0])
+        continue
+    if sample=="Iris-virginica":
+        y_color.append(colors[1])
+        continue
+    if sample=="Iris-versicolor":
+        y_color.append(colors[2])
+        continue
+plt.scatter(X_train[:,0],X_train[:,1],c=y_color)
+
+#%%
+
 model = SVC(kernel='rbf')
-model.fit(X_train, y_train)
-ovo_eval(model)
+ovo_eval(model,X_train_old.to_numpy()[:,1].reshape(-1,1),y_train,X_test_old.to_numpy()[:,1].reshape(-1,1),y_test)
 # %%
