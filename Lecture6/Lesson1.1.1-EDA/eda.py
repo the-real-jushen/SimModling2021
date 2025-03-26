@@ -169,6 +169,7 @@ plt.bar(x=body_style.index, height=body_style)
 # autopct是饼图中显示数字的格式，可以传递str或者callable的function
 # labels就是饼图中的种类
 # shadows加个阴影，纯粹为了好看
+plt.figure(facecolor='white')  # Set the figure background color to white
 plt.pie(body_style, autopct='%1.1f%%', labels=body_style.index, shadow=True)
 #plt.show()
 # %% [markdown]
@@ -314,4 +315,9 @@ https://www.kaggle.com/fazilbtopal/exploratory-data-analysis-with-python/data
 
 '''
 
-# %%
+# %% [markdown]
+''''
+## quiz
+探索轴距(wheel-base)与车辆长度(length)、'
+宽度(width)、高度(hight)之间的关系'
+'''

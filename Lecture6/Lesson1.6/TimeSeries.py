@@ -188,4 +188,10 @@ def rolling_predict_var(start, end, step):
     return prediction[start:end]
 prediction = rolling_predict_var(50, 100, 1)
 
-# %%
+# %% [markdown]
+
+''''
+Quiz 1.6 Time Series
+
+下面有一组数据,exp1.6_new.csv,（一共有四个特征A,B,C,D），请根据前500个点的A,B,C，预测后面50个点的D的结果
+'''
